@@ -1,0 +1,60 @@
+version: '4.21.1'
+
+services:
+  nginx:
+    build:
+      context: ./docker
+      dockerfile: nginx.dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - postgres
+      - php
+
+  postgres:
+    image: postgres:alpine3.19
+    ports:
+      - 5432:5432
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: laravel
+
+    volumes:
+      - ./docker/db-data:/var/lib/postgresql/data/
+
+  php:
+    build:
+      context: ./docker
+      dockerfile: php.dockerfile
+    volumes:
+      - ./src:/var/www/html
+
+  composer:
+    build:
+      context: ./docker
+      dockerfile: composer.dockerfile
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+
+  npm:
+    image: node:current-alpine
+    volumes:
+      - ./src:/var/www/html
+    entrypoint: [ "npm" ]
+    working_dir: /var/www/html
+
+  artisan:
+    build:
+      context: ./docker
+      dockerfile: php.dockerfile
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - postgres
+    entrypoint: [ "php", "/var/www/html/artisan" ]

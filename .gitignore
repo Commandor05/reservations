@@ -1,0 +1,5 @@
+/docker/db-data
+/docker/nginx/*.pem
+/.fleet
+/.idea
+/.vscode        
