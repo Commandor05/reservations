@@ -76,8 +76,6 @@ class CompanyUserTest extends TestCase
     {
         $company = Company::factory()->create();
         $user = User::factory()->admin()->create(['company_id' => $company->id]);
-        $userName = $user->name;
-        $userEmail = $user->email;
 
         $response = $this->actingAs($user)->delete(
             route('companies.users.destroy', [$company->id, $user->id])
@@ -85,12 +83,6 @@ class CompanyUserTest extends TestCase
 
         $response->assertRedirect(route('companies.users.index', $company->id));
 
-        $this->assertDatabaseMissing(
-            'users',
-            [
-                'name' => $userName,
-                'email' => $userEmail,
-            ]
-        );
+        $this->assertSoftDeleted($user->fresh());
     }
 }
