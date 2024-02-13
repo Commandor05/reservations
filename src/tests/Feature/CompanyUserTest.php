@@ -191,7 +191,7 @@ class CompanyUserTest extends TestCase
         ]);
     }
 
-    public function test_company_owner_cannot_edit_user_for_his_company()
+    public function test_company_owner_cannot_edit_user_other_his_company()
     {
         $company = Company::factory()->create();
         $companyTwo = Company::factory()->create();
@@ -227,7 +227,7 @@ class CompanyUserTest extends TestCase
         $this->assertSoftDeleted($user->fresh());
     }
 
-    public function test_company_owner_cannot_delete_user_for_his_company()
+    public function test_company_owner_cannot_delete_user_for_other_company()
     {
         $company = Company::factory()->create();
         $companyTwo = Company::factory()->create();
