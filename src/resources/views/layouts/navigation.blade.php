@@ -29,6 +29,10 @@
                         :active="request()->routeIs('companies.guides.*')">
                         {{ __('Guides') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('companies.activities.index', auth()->user()->company_id)"
+                        :active="request()->routeIs('companies.activities.*')">
+                        {{ __('Activities') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>
