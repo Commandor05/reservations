@@ -13,7 +13,12 @@ RUN mkdir -p /var/www/html/public
 
 RUN set -ex && apk --no-cache add postgresql-dev
 
-RUN docker-php-ext-install pdo pdo_pgsql opcache
+RUN apk add --no-cache zip libzip-dev libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev
+RUN docker-php-ext-configure zip
+RUN docker-php-ext-install zip
+RUN docker-php-ext-configure -j$(nproc) gd --with-freetype --with-jpeg
+
+RUN docker-php-ext-install gd pdo pdo_pgsql opcache
 
 ADD opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 

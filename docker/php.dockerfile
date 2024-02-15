@@ -13,6 +13,10 @@ RUN mkdir -p /var/www/html/public
 
 RUN set -ex && apk --no-cache add postgresql-dev
 
-RUN docker-php-ext-install pdo pdo_pgsql
+RUN apk add --no-cache zip libzip-dev libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev
+RUN docker-php-ext-configure zip
+RUN docker-php-ext-install zip
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql
 
 CMD ["php-fpm", "-y", "/usr/local/etc/php-fpm.conf", "-R"]
