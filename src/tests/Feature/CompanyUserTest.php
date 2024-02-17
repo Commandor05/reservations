@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Role;
+use App\Mail\RegistrationInvite;
 use App\Models\User;
 use App\Models\Company;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class CompanyUserTest extends TestCase
@@ -22,28 +24,49 @@ class CompanyUserTest extends TestCase
         $response->assertOK();
     }
 
-    public function test_admin_can_create_user_for_a_company()
+    public function test_admin_can_send_invite_to_user_for_a_company()
     {
+        Mail::fake();
+
         $company = Company::factory()->create();
         $user = User::factory()->admin()->create();
-        $userName = 'test company user';
+
         $userEmail = 'testcu@mail.ua';
 
         $response = $this->actingAs($user)->post(
             route('companies.users.store', $company->id),
             [
-                'name' => $userName,
                 'email' => $userEmail,
-                'password' => 'password',
             ]
         );
 
+        Mail::assertSent(RegistrationInvite::class);
+
         $response->assertRedirect(route('companies.users.index', $company->id));
 
-        $this->assertDatabaseHas('users', [
-            'name' => $userName,
+        $this->assertDatabaseHas('user_invitations', [
+            'email' => $userEmail,
+            'registered_at' => null,
+            'company_id' => $company->id,
+            'role_id' => Role::COMPANY_OWNER->value,
+        ]);
+    }
+
+    public function test_invitation_can_be_sent_only_once_for_user()
+    {
+        $company = Company::factory()->create();
+        $user = User::factory()->admin()->create();
+        $userEmail = 'testdouble@mail.ua';
+
+        $this->actingAs($user)->post(route('companies.users.store', $company->id), [
             'email' => $userEmail,
         ]);
+
+        $response = $this->actingAs($user)->post(route('companies.users.store', $company->id), [
+            'email' => $userEmail,
+        ]);
+
+        $response->assertInvalid(['email' => 'Invitation with this email address already requested']);
     }
 
     public function test_admin_can_edit_user_for_a_company()
@@ -119,28 +142,26 @@ class CompanyUserTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_company_owner_can_create_user_for_his_company()
+    public function test_company_owner_can_send_invite_to_user_for_his_company()
     {
         $company = Company::factory()->create();
         $user = User::factory()->companyOwner()->create(['company_id' => $company->id]);
-        $userName = 'test company user';
         $userEmail = 'testcu@mail.ua';
 
         $response = $this->actingAs($user)->post(
             route('companies.users.store', $company->id),
             [
-                'name' => $userName,
                 'email' => $userEmail,
-                'password' => 'password',
             ]
         );
 
         $response->assertRedirect(route('companies.users.index', $company->id));
 
-        $this->assertDatabaseHas('users', [
-            'name' => $userName,
+        $this->assertDatabaseHas('user_invitations', [
             'email' => $userEmail,
+            'registered_at' => null,
             'company_id' => $company->id,
+            'role_id' => Role::COMPANY_OWNER->value,
         ]);
     }
 
@@ -149,15 +170,12 @@ class CompanyUserTest extends TestCase
         $company = Company::factory()->create();
         $companyTwo = Company::factory()->create();
         $user = User::factory()->companyOwner()->create(['company_id' => $company->id]);
-        $userName = 'test company user';
         $userEmail = 'testcu@mail.ua';
 
         $response = $this->actingAs($user)->post(
             route('companies.users.store', $companyTwo->id),
             [
-                'name' => $userName,
                 'email' => $userEmail,
-                'password' => 'password',
             ]
         );
 

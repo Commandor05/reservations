@@ -2,4 +2,6 @@
 /docker/nginx/*.pem
 /.fleet
 /.idea
-/.vscode        
+/.vscode
+
+**/.DS_Store
