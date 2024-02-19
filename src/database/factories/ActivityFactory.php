@@ -24,8 +24,8 @@ class ActivityFactory extends Factory
             'guide_id' => User::factory()->guide(),
             'name' => fake()->name(),
             'description' => fake()->text(),
-            'start_time' => Carbon::now(),
-            'price' => fake()->randomNumber(5),
+            'start_time' => fake()->dateTimeBetween('+1 day', '+1 year'),
+            'price' => fake()->randomNumber(5, strict: true),
         ];
     }
 }
