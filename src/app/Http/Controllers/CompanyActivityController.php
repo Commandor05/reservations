@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateActivityRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Intervention\Image\Facades\Image;
 
 class CompanyActivityController extends Controller
 {
@@ -39,13 +40,11 @@ class CompanyActivityController extends Controller
     {
         $this->authorize('create', $company);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('activities', 'public');
-        }
+        $filename = $this->uploadImage($request);
 
         Activity::create($request->validated() + [
             'company_id' => $company->id,
-            'photo' => $path ?? null
+            'photo' => $filename,
         ]);
 
         return to_route('companies.activities.index', $company);
@@ -66,15 +65,10 @@ class CompanyActivityController extends Controller
     {
         $this->authorize('update', $activity);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('activities', 'public');
-            if ($activity->photo) {
-                Storage::disk('public')->delete($activity->photo);
-            }
-        }
+        $filename = $this->uploadImage($request);
 
         $activity->update($request->validated() + [
-            'photo' => $path ?? $activity->photo,
+            'photo' => $filename ?? $activity->photo,
         ]);
 
         return to_route('companies.activities.index', $company);
@@ -87,5 +81,26 @@ class CompanyActivityController extends Controller
         $activity->delete();
 
         return to_route('companies.activities.index', $company);
+    }
+
+    private function uploadImage(StoreActivityRequest|UpdateActivityRequest $request)
+    {
+        if (!$request->hasFile('image')) {
+            return null;
+        }
+
+        $filename = $request->file('image')->store(options: 'activities');
+
+        $img = Image::make(Storage::disk('activities')->get($filename))
+            ->resize(274, 274, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+
+        Storage::disk('activities')->put(
+            'thumbs/' . $request->file('image')->hashName(),
+            $img->stream()
+        );
+
+        return $filename;
     }
 }

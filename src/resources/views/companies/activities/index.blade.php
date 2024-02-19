@@ -46,7 +46,7 @@
                                 <tr class="bg-white">
                                     <td class="px-6 py-4 text-sm leading-5 text-gray-900 whitespace-no-wrap">
                                         @if($activity->photo)
-                                        <img src="{{ asset('storage/' . $activity->photo) }}"
+                                        <img src="{{ asset('storage/activities/' . $activity->photo) }}"
                                             alt="{{ $activity->name }}" class="w-16 h-16 rounded-xl">
                                         @endif
                                     </td>
