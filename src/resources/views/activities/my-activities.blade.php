@@ -14,7 +14,27 @@
                     @endif
 
                     <div class="grid grid-cols-4 gap-5">
-                        My activities
+                        @forelse($activities as $activity)
+                        <div class="space-y-3">
+                            <a href="{{ route('activity.show', $activity) }}">
+                                <img src="{{ asset('storage/' . $activity->thumbnail) }}" alt="{{ $activity->name }}">
+                            </a>
+                            <h2>
+                                <a href="{{ route('activity.show', $activity) }}">{{ $activity->name }}</a>
+                            </h2>
+                            <time>{{ $activity->start_time }}</time>
+
+                            <form action="{{ route('my-activity.destroy', $activity)}}" method="POST"
+                                onsubmit="return confirm('Are you sure')">
+                                @csrf
+                                @method('DELETE')
+
+                                <x-danger-button>Cancel</x-danger-button>
+                            </form>
+                        </div>
+                        @empty
+                        <p>No activities</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
