@@ -88,7 +88,7 @@ class RegisteredUserController extends Controller
         $activityFromSession = $request->session()->get('activity');
         $activity = Activity::find($activityFromSession);
         if ($activityFromSession && $activity) {
-            $user->activities->attach($activityFromSession);
+            $user->activities()->attach($activityFromSession);
 
             $user->notify(new RegisteredToActivityNotification($activity));
 
