@@ -13,6 +13,12 @@ RUN mkdir -p /var/www/html/public
 
 RUN set -ex && apk --no-cache add postgresql-dev
 
+RUN apk add --update linux-headers
+RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \ 
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk del pcre-dev ${PHPIZE_DEPS}
+
 RUN apk add --no-cache zip libzip-dev libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip

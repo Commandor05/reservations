@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start with XDebug",
+      "type": "shell",
+      "command": [
+        "echo 'xdebug.start_with_request=yes' >> ${workspaceRoot}/docker/php/conf.d/xdebug.ini",
+        "&&",
+        "docker compose up -d"
+      ],
+      "presentation": {
+        "reveal": "never",
+        "clear": true,
+        "close": true
+      }
+    },
+    {
+      "label": "Stop with XDebug",
+      "type": "shell",
+      "command": [
+        "sed -i.bu '/xdebug.start_with_request=yes/d' ${workspaceRoot}/docker/php/conf.d/xdebug.ini",
+        "&&",
+        "docker compose down"
+      ],
+      "presentation": {
+        "reveal": "never",
+        "clear": true,
+        "close": true
+      }
+    }
+  ]
+}

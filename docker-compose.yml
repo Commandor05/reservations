@@ -32,6 +32,9 @@ services:
       dockerfile: php.dockerfile
     volumes:
       - ./src:/var/www/html
+      - ./docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/99-xdebug.ini
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   composer:
     build:

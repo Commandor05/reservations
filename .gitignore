@@ -2,6 +2,9 @@
 /docker/nginx/*.pem
 /.fleet
 /.idea
-/.vscode
+/.vscode/*
+!/.vscode/launch.json
+!/.vscode/tasks.json
+/docker/php/conf.d/xdebug.ini.bu
 
 **/.DS_Store
